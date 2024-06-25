@@ -53,5 +53,12 @@ notes.onkeydown = async event => {
   }
 }
 
+notes.oninput = () => {
+  if (temp) {
+    notes.innerText = temp
+    temp = ''
+  }
+}
+
 
 Object.assign(window, {Ollama})
