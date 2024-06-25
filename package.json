@@ -1,0 +1,24 @@
+{
+  "name": "shodan",
+  "version": "1.0.0",
+  "main": "main.mjs",
+  "scripts": {
+    "rundev": "electron --inspect .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "make": "electron-builder -w=portable"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "highlight.js": "^11.9.0",
+    "marked": "^13.0.1",
+    "marked-highlight": "^2.1.3",
+    "ollama": "^0.5.2"
+  },
+  "devDependencies": {
+    "electron": "^31.0.2",
+    "electron-builder": "^24.13.3"
+  }
+}

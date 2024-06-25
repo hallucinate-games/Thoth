@@ -1,0 +1,4 @@
+{
+  "hostname": "http://localhost:11434",
+  "model": "interstellarninja/hermes-2-theta-llama-3-8b:latest"
+}
