@@ -39,7 +39,7 @@ notes.onkeydown = async event => {
     event.preventDefault()
     console.log('completing')
     temp = notes.innerText+'\n\n'
-    let req = ollama.generate(temp)
+    let req = ollama.generate({prompt:temp, keep_alive: "60m"})
     let ihtml = barked.parse(temp)
     notes.innerHTML = ihtml+'<br>'
     move_caret_to_end(notes)
