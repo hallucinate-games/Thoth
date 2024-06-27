@@ -14,6 +14,7 @@ sources:
 4. [quant comparison gist](https://gist.github.com/Artefact2/b5f810600771265fc1e39442288e8ec9 )
 5. [reddit post about GGUF quantization methods](https://www.reddit.com/r/LocalLLaMA/comments/1ba55rj/overview_of_gguf_quantization_methods/)
 6. [llama.cpp issue comparing IQ3_S and Q3_K](https://github.com/ggerganov/llama.cpp/pull/5676)
+7. [older llama.cpp  quant strats](https://github.com/ggerganov/llama.cpp/pull/1684)
 
 ## fit in 43gb (gv100 + 1080Ti)
 - :computer: `llama3-chatqa:70b-v1.5-q3_K_M`(ends up being 3.88bpw?)
@@ -45,9 +46,8 @@ sources:
   - 32k context
   - `mixtral:8x7b-text-v0.1-q4_0` if above doesn't fit
   - MoE models are supposedly fast X smart, but PHI and hermes are said to beat mixtral
-- `command-r:35b-v0.1-q5_1`
+- :computer: `command-r:35b-v0.1-q4_K_M`
   - supposedly very good at RAG
-  - `command-r:35b-v0.1-q4_1` available if above doesn't fit
 
 ## fit in 16gb
 - :computer:`deepseek-coder-v2:16b-lite-instruct-q5_1` (12.6gb resident, 38tps)
