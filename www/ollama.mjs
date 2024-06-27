@@ -136,11 +136,15 @@ const Ollama = (url='http://localhost:11434',model='llama') => {
   const tags = call_JSON_endpoint(url+'/api/tags')
   const copy = call_JSON_endpoint(url+'/api/copy')
   const embeddings = call_JSON_endpoint(url+'/api/embeddings')
-  const pull = cje_agnostic(url+'/api/pull')
+  const pull = payload => {
+    if (typeof payload == 'string') payload = {name:payload}
+    return cje_agnostic(url+'/api/pull')(payload)
+  }
   const push = cje_agnostic(url+'/api/push')
   const delete_m = call_JSON_endpoint(url+'/api/delete','DELETE')
   const show = payload => call_JSON_endpoint(url+'/api/show')(Object.assign({model},payload))
   const swap_def_model = model_name => model = model_name
+  
   return {
     embeddings,
     generate, chat,
@@ -148,7 +152,12 @@ const Ollama = (url='http://localhost:11434',model='llama') => {
     create, //warn, untested, should work tho
     tags, show, pull,
     copy, delete:delete_m,
-    swap_def_model
+    get model() {
+      return model
+    },
+    set model(m_name) {
+      model = m_name
+    },
   }
 }
 /*
