@@ -1,3 +1,6 @@
+//chunkers for streaming data
+//these get passed to the streaming endpoint caller in order to do additional
+//processing for specific endpoints as a convenience
 //TODO dry this shit out a bit maybe?
 const basic_chunker = response => {
   let output = {chunks:[]}
@@ -7,6 +10,7 @@ const basic_chunker = response => {
   }
   return {output, process_chunk} 
 }
+
 const gen_chunker = response => {
   let output = {chunks:[],response:''}
   let process_chunk = chunk => {
@@ -27,6 +31,7 @@ const gen_chunker = response => {
   }
   return {output, process_chunk} 
 }
+
 const chat_chunker = response => {
   let output = {chunks:[],message:undefined}
   let process_chunk = chunk => {
@@ -50,6 +55,7 @@ const chat_chunker = response => {
   }
   return {output, process_chunk} 
 }
+
 const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
   const method = payload?"POST":"GET"
   const body = payload?JSON.stringify(payload):undefined
@@ -93,7 +99,7 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
 }
 
 const call_JSON_endpoint = (url,def_method) => payload => {
-  let method = def_method||payload?"POST":"GET"
+    let method = def_method||(payload?"POST":"GET")
   const body = payload?JSON.stringify(payload):undefined
   let req_opts = {
     method, headers: { 'Content-Type': 'application/json' },
