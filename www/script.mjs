@@ -32,6 +32,13 @@ const move_caret_to_end = element => {
 }
 
 //window.close_toggle.ontoggle = console.log
+//
+const calc_stats = res => {
+    const {eval_count, eval_duration} = res
+    const eval_sec = eval_duration / 10**9
+    const tps = eval_count/eval_sec
+    return {tps, eval_sec}
+} 
 
 notes.onkeydown = async event => {
   const {key, shiftKey} = event
@@ -49,7 +56,8 @@ notes.onkeydown = async event => {
       notes.innerHTML = ihtml
     }
     let res = await req
-    console.log(res)
+    window.lastres = res
+    console.log(calc_stats(res))
   }
 }
 
@@ -61,4 +69,4 @@ notes.oninput = () => {
 }
 
 
-Object.assign(window, {Ollama})
+Object.assign(window, {Ollama, ollama})
