@@ -40,13 +40,16 @@ const calc_stats = res => {
     return {tps, eval_sec}
 } 
 
+window.ap = {}
+
 notes.onkeydown = async event => {
   const {key, shiftKey} = event
   if (key === "Enter" && shiftKey) {
     event.preventDefault()
     console.log('completing')
     temp = notes.innerText+'\n\n'
-    let req = ollama.generate({prompt:temp, keep_alive: "60m"})
+    let req_params = Object.assign({},{prompt:temp, keep_alive: "60m"},window.ap)
+    let req = ollama.generate(req_params)
     let ihtml = barked.parse(temp)
     notes.innerHTML = ihtml+'<br>'
     move_caret_to_end(notes)

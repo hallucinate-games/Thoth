@@ -108,7 +108,7 @@ const call_JSON_endpoint = (url,def_method) => payload => {
   return fetch(url, req_opts)
     .then(res => {
       if (res.ok) {
-        return res.json().catch(a => a)
+        return res.json().catch(a => res)
       } else {
         throw new Error(`Error ${res.status}: ${res.statusText}`)
       }
@@ -147,9 +147,11 @@ const Ollama = (url='http://localhost:11434',model='llama') => {
     return cje_agnostic(url+'/api/pull')(payload)
   }
   const push = cje_agnostic(url+'/api/push')
-  const delete_m = call_JSON_endpoint(url+'/api/delete','DELETE')
+  const delete_m = payload => {
+    if (typeof payload == 'string') payload = {name:payload}
+    return call_JSON_endpoint(url+'/api/pull', 'DELETE')(payload)
+  }
   const show = payload => call_JSON_endpoint(url+'/api/show')(Object.assign({model},payload))
-  const swap_def_model = model_name => model = model_name
   
   return {
     embeddings,
