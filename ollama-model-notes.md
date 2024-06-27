@@ -2,6 +2,18 @@
 (looks like ram residency is about 1gb + model size on disk, which is different (more efficient) than exl2 w/ ooba)
 models marked with a :computer: are ones i've tested
 
+the rules thumb for picking quant size are 
+- Q4_K_M is BiS if you can fit it, if you can't use the largest IQX_X_X you can fit 
+- get the largest number of weights you can fit until you go down to IQ2_X_X, 70B < 2bpw ≈ 35B fp16
+- larger quants appear to be essentially placebo (more accurate but marginally, and slower)
+
+sources:
+1. [quant comparison rentry](https://rentry.org/llama-cpp-quants-or-fine-ill-do-it-myself-then-pt-2)
+2. [llama 3 quant comparison blog post](https://huggingface.co/blog/wolfram/llm-comparison-test-llama-3)
+3. [llama3 quant comparison chart](https://github.com/matt-c1/llama-3-quant-comparison?tab=readme-ov-file#correctness-vs-model-size)
+4. [quant comparison gist](https://gist.github.com/Artefact2/b5f810600771265fc1e39442288e8ec9 )
+5. [reddit post about GGUF quantization methods](https://www.reddit.com/r/LocalLLaMA/comments/1ba55rj/overview_of_gguf_quantization_methods/)
+
 ## fit in 43gb (gv100 + 1080Ti)
 - :computer: `llama3-chatqa:70b-v1.5-q3_K_M`(ends up being 3.88bpw?)
   - nvidia finetuned llama3 supposedly better at RAG type beats
