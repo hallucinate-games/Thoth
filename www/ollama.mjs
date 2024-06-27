@@ -92,8 +92,8 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
   return response
 }
 
-const call_JSON_endpoint = (url,method) => payload => {
-  method = method||payload?"POST":"GET"
+const call_JSON_endpoint = (url,def_method) => payload => {
+  let method = def_method||payload?"POST":"GET"
   const body = payload?JSON.stringify(payload):undefined
   let req_opts = {
     method, headers: { 'Content-Type': 'application/json' },
