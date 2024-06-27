@@ -36,6 +36,7 @@ sources:
 - `llava:34b-v1.6-q4_1`
   - very curious about multimodal models
   - based on llama 1? (not that llama 1 was even bad, and i can't find any multimodal models based on more recent training)
+    - looks like there's a new one [Cambrian-1](https://github.com/cambrian-mllm/cambrian?tab=readme-ov-file#cambrian-weights) and as noted on their github page there are a few new llava versions finetuned from llama3-8b, vicuna1.5-13b and Hermes2-Yi-34B the weights for which can be found  
   - would have to add multimodal support to SHODAN
     - image paste handler, client side scaling (llava requires particular image dims iirc)
 - `dolphin-mixtral:8x7b-v2.7-q4_1`

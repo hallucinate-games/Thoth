@@ -10,18 +10,18 @@ While I will probably keep tweaking/working on this stuff some more, but it seem
 ## methodology
 
 i used the prompt 
-```md
+~~~md
 here is the documentation for the ollama api
 [ollama documentation in markdown]
 
 here is a wrapper i wrote for the documentation, ollama.mjs
-\`\`\`js
+```js
 //ollama.mjs
-\`\`\`
+```
 
 please write a readme file for my wrapper library, 
 include a quick start guide and a high level overview
-```
+~~~
 
 then i ran this prompt a *few* times (2-3) and evaluated the vibes of the output subjectively 
 after a few runs i ended up looking for it's description of the `tags` and `ps` endpoints especially because it's not clear at all from the code what they do but it is explained in the documentation, i didn't write it all down and i will probably re-run the tests, but generally the ones i had good things to say about got one or both of them correct in at least *some* runs
