@@ -21,6 +21,7 @@ sources:
   - ~~curious about this particular quant/size just because it requires splitting across GPUs and I wanna know if it works in ollama~~
   - this does in fact work in ollama (bf 1.08, gv100+1080ti = 8.5tps)
 - `command-r-plus:104b-q2_K`
+  - 128k context
   - huge model, probably can't run this (39gb blob)
   - 2bit so may be braindamaged, but lots of parameters may make up for that?
 - :computer:`vanilj/midnight-miqu-70b-v1.5:latest`
@@ -37,9 +38,11 @@ sources:
   - would have to add multimodal support to SHODAN
     - image paste handler, client side scaling (llava requires particular image dims iirc)
 - `dolphin-mixtral:8x7b-v2.7-q4_1`
+  - 32k context
   - `dolphin-mixtral:8x7b-v2.7-q4_0` (same as `dolphin-mixtral:latest`, use if above doesn't fit in one gpu)
   - apparently a finetune of mixtral to be uncensored, not sure of it's utility
 - `mixtral:8x7b-text-v0.1-q4_1`
+  - 32k context
   - `mixtral:8x7b-text-v0.1-q4_0` if above doesn't fit
   - MoE models are supposedly fast X smart, but PHI and hermes are said to beat mixtral
 - `command-r:35b-v0.1-q5_1`
@@ -67,10 +70,13 @@ sources:
   - also available as a 6_K quant (`phi3:14b-medium-128k-instruct-q6_K`) which should fit into 16gb
 
 ## fit in 8gb
+- `llama3-gradient`
+  - extends the llama3 context window to 1m tokens from 8k
 - :computer: `interstellarninja/hermes-2-theta-llama-3-8b:latest` (q4_0)
   - 5.9gb in mem (bf 1.2x, v100 = 46.5 tps)
   - subjectively the best 8B model i've tried, has interesting funcalling training
-- [Llama-3-Instruct-8B-SPPO-Iter3-Q4_K_M.gguf](https://huggingface.co/bartowski/Llama-3-Instruct-8B-SPPO-Iter3-GGUF/tree/main)
+- :computer: [Llama-3-Instruct-8B-SPPO-Iter3-Q4_K_M.gguf](https://huggingface.co/bartowski/Llama-3-Instruct-8B-SPPO-Iter3-GGUF/tree/main)
+  - 53tps 
   - interesting self-tuning training method, performs very highly on benchmarks but i suspect it's overtuned
 - `phi3:3.8b-mini-4k-instruct-q6_K`
 - `phi3:3.8b-mini-4k-instruct-q8_0`
