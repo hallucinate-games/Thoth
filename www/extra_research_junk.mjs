@@ -10,7 +10,7 @@ const gen_model_table = async () => {
     const {model, model_info, details} = m
     const ctx_l = Object.entries(model_info).filter(([k]) => k.match(/context_length/))
     const {parameter_size, quantization_level} = details
-    return `|${model}|${parameter_size}|${quantization_level}|${ctx_l[0][1]}|`
+    return `|<a href="#" onclick="ollama.model = '${model}';console.log('model set to: ${model}');">${model}</a>|${parameter_size}|${quantization_level}|${ctx_l[0][1]}|`
   }).join('\n')
   notes.innerHTML = barked.parse(model_table)
 }
