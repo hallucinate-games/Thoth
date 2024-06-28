@@ -1,4 +1,5 @@
 import Ollama from "./ollama.mjs"
+import junk from './extra_research_junk.mjs' 
 //sadly this doesn't work
 //import {hostname, model} from "../ollama.json" assert { type: `json` }
 const {hostname,model} = await fetch('../ollama.json').then(j => j.json())
@@ -72,4 +73,4 @@ notes.oninput = () => {
 }
 
 
-Object.assign(window, {Ollama, ollama})
+Object.assign(window, {Ollama, ollama, barked})

@@ -17,10 +17,8 @@ const create_window = () => {
     alwaysOnTop: true,
     webPreferences: {
       preload: path.join(path.resolve(path.dirname('')), '/preload.mjs'),
-      /*
       nodeIntegration: true,
       contextIsolation: false
-      */
     }
   })
 

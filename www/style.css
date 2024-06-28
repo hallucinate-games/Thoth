@@ -41,3 +41,13 @@ body {
 *::-webkit-scrollbar-track {
   border-radius: 0px 10px 10px 0px;
 }
+
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+td {
+  border: 1px solid beige;
+  padding: 4px;
+}
