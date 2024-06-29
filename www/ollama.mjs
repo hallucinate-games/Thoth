@@ -60,8 +60,11 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
   const method = payload?"POST":"GET"
   const body = payload?JSON.stringify(payload):undefined
   let req_opts = {
-    method, headers: { "Content-Type": "application/json",
-      "Accept": "text/event-stream"},
+    method, headers: { 
+      "Content-Type": "application/json",
+      //fml this breaks CORS, i hate all web technologies
+      //"Accept": "text/event-stream"
+    },
     body
   }
   let response = new Promise(res => {
