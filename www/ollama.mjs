@@ -158,7 +158,7 @@ const Ollama = (url='http://localhost:11434',model='llama') => {
   const push = cje_agnostic(url+'/api/push')
   const delete_m = payload => {
     if (typeof payload == 'string') payload = {name:payload}
-    return call_JSON_endpoint(url+'/api/pull', 'DELETE')(payload)
+    return call_JSON_endpoint(url+'/api/delete', 'DELETE')(payload)
   }
   const show = payload => call_JSON_endpoint(url+'/api/show')(Object.assign({model},payload))
   
