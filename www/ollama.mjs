@@ -74,6 +74,7 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
       let completion_text = ''
       const decoder = new TextDecoder()
       const reader = fetch_res.body.getReader()
+      let decoded_chunk = ''
       while (true) {
         const { done, value } = await reader.read()
         if (done) {
@@ -82,20 +83,25 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
           res(chunker.output)
           return
         }
-        const decoded_chunk = decoder.decode(value)
+        //TODO validate that this assumption is correct
+        //we assume all chunks end with a newline
+        //a chunk might be partial, in which case we have to defer
+        decoded_chunk += decoder.decode(value)
+        if (decoded_chunk.at(-1) === '\n') {
+          const chunks = decoded_chunk
+            .split('\n')
+            .filter(a => a.length && a !== '\r')
+            .map(chunk => {
+              try {
+                const parsed = JSON.parse(chunk)
+                return parsed
+              } catch (error) {
+                return {error,chunk}
+              }
+          }).forEach(chunker.process_chunk)
+          decoded_chunk = ''
+        }
         //console.log(decoded_chunk)
-        const chunks = decoded_chunk
-          .split('\n')
-          .filter(a => a.length && a !== '\r')
-          .map(chunk => {
-            try {
-              const parsed = JSON.parse(chunk)
-              return parsed
-            } catch (error) {
-              return {error,chunk}
-            }
-          })
-          .forEach(chunker.process_chunk)
       }})
   })
   return response
