@@ -16,7 +16,7 @@ const create_window = () => {
     transparent: true,
     alwaysOnTop: true,
     webPreferences: {
-      preload: path.join(path.resolve(path.dirname('')), '/preload.mjs'),
+      //preload: path.join(path.resolve(path.dirname('')), '/preload.mjs'),
       nodeIntegration: true,
       contextIsolation: false
     }
@@ -25,7 +25,7 @@ const create_window = () => {
   main_window.loadFile('www/index.html')
   //main_window.webContents.openDevTools()
 
-  console.log(global)
+  //console.log(global)
   Object.assign(global, {main_window})
   //toggle_window()
 }

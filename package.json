@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "main.mjs",
   "scripts": {
+    "run": "electron .",
     "rundev": "electron --inspect .",
+    "mkdocs": "node make_ollama_docs.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "make": "electron-builder -w=portable"
   },
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "electron": "^31.0.2",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "http-server": "^14.1.1"
   }
 }

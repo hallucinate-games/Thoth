@@ -19,7 +19,7 @@ const barked = new marked.Marked(
   })
 )
 
-let temp = ''
+window.temp = ''
 
 const move_caret_to_end = element => {
   //https://stackoverflow.com/questions/1125292/how-to-move-the-cursor-to-the-end-of-a-contenteditable-entity/3866442#3866442
@@ -42,6 +42,10 @@ const calc_stats = res => {
 } 
 
 window.ap = {}
+let generating = undefined
+document.onkeydown = ({keyCode,ctrlKey}) => {
+  if (generating?.abort && keyCode === 67 && ctrlKey) generating.abort()
+}
 
 notes.onkeydown = async event => {
   const {key, shiftKey} = event
@@ -50,16 +54,16 @@ notes.onkeydown = async event => {
     console.log('completing')
     temp = notes.innerText+'\n\n'
     let req_params = Object.assign({},{prompt:temp, keep_alive: "60m"},window.ap)
-    let req = ollama.generate(req_params)
+    generating = ollama.generate(req_params)
     let ihtml = barked.parse(temp)
     notes.innerHTML = ihtml+'<br>'
     move_caret_to_end(notes)
-    req.ontext = text => {
+    generating.ontext = text => {
       temp += text
       let ihtml = barked.parse(temp)
       notes.innerHTML = ihtml
     }
-    let res = await req
+    let res = await generating
     window.lastres = res
     console.log(calc_stats(res))
   }

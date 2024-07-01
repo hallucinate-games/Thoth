@@ -1,4 +1,12 @@
-//chunkers for streaming data
+/**
+  * ollama.mjs is a thin wrapper for the [ollama REST api](https://github.com/ollama/ollama/blob/main/docs/api.md)
+  * that tries to do as little as possible while still giving the end user
+  * a fair bit more to work with than just hitting this shit with fetch
+  *
+  * the code is all self contained and written such that it works in node and browser
+ */
+
+//internal chunkers for streaming data
 //these get passed to the streaming endpoint caller in order to do additional
 //processing for specific endpoints as a convenience
 //TODO dry this shit out a bit maybe?
@@ -56,20 +64,24 @@ const chat_chunker = response => {
   return {output, process_chunk} 
 }
 
-const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
-  const method = payload?"POST":"GET"
-  const body = payload?JSON.stringify(payload):undefined
+const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => options => {
+  const method = options?"POST":"GET"
+  const body = options?JSON.stringify(options):undefined
+
+  const controller = new AbortController()
   let req_opts = {
     method, headers: { 
       "Content-Type": "application/json",
       //fml this breaks CORS, i hate all web technologies
       //"Accept": "text/event-stream"
     },
-    body
+    body,
+    signal: controller.signal,
   }
-  let response = new Promise(res => {
+
+  let req = new Promise(res => {
     fetch(url, req_opts).then(async fetch_res => {
-      const chunker = Chunker(response)
+      const chunker = Chunker(req)
       const chunks = []
       let completion_text = ''
       const decoder = new TextDecoder()
@@ -83,10 +95,10 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
           res(chunker.output)
           return
         }
+        decoded_chunk += decoder.decode(value)
         //TODO validate that this assumption is correct
         //we assume all chunks end with a newline
         //a chunk might be partial, in which case we have to defer
-        decoded_chunk += decoder.decode(value)
         if (decoded_chunk.at(-1) === '\n') {
           const chunks = decoded_chunk
             .split('\n')
@@ -104,17 +116,21 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => payload => {
         //console.log(decoded_chunk)
       }})
   })
-  return response
+  req.abort = () => controller.abort()
+  return req
 }
 
-const call_JSON_endpoint = (url,def_method) => payload => {
-    let method = def_method||(payload?"POST":"GET")
-  const body = payload?JSON.stringify(payload):undefined
+const call_JSON_endpoint = (url,def_method) => options => {
+  let method = def_method||(options?"POST":"GET")
+  const body = options?JSON.stringify(options):undefined
+
+  const controller = new AbortController()
   let req_opts = {
     method, headers: { 'Content-Type': 'application/json' },
-    body
+    body,
+    signal: controller.signal
   }
-  return fetch(url, req_opts)
+  let req = fetch(url, req_opts)
     .then(res => {
       if (res.ok) {
         return res.json().catch(a => res)
@@ -122,53 +138,91 @@ const call_JSON_endpoint = (url,def_method) => payload => {
         throw new Error(`Error ${res.status}: ${res.statusText}`)
       }
     })
-    .catch(error => {
-      console.error(`Error sending request: ${error}`)
-    })
+  req.abort = () => controller.abort()
+
+  return req
 }
 
-const cje_agnostic = (url,chunker) => payload => {
-  if (payload?.stream === false) {
-    return call_JSON_endpoint(url)(payload)
+//some endpoints can be streamed, so this wraps the two callers and swaps modes
+//when stream = false (stream mode works by default)
+const cje_agnostic = (url,chunker) => options => {
+  if (options?.stream === false) {
+    return call_JSON_endpoint(url)(options)
   } else {
-    return call_JSON_endpoint_stream(url,chunker)(payload)
+    return call_JSON_endpoint_stream(url,chunker)(options)
   }
 }
 
+//main interface is a closure that wraps things up and returns an object that has
+//all of the api endpoints as properties
 const Ollama = (url='http://localhost:11434',model='llama') => {
-  const ps = call_JSON_endpoint(url+'/api/ps')
-  const generate = payload => {
-    if (typeof payload == 'string') payload = {prompt:payload}
-    payload = Object.assign({model},payload)
-    return cje_agnostic(url+'/api/generate',gen_chunker)(payload)
+  const ps = () => call_JSON_endpoint(url+'/api/ps')()
+  const tags = () => call_JSON_endpoint(url+'/api/tags')()
+  const generate = options => {
+    if (typeof options == 'string') options = {prompt:options}
+    options = Object.assign({model},options)
+    return cje_agnostic(url+'/api/generate',gen_chunker)(options)
   }
-  const chat = payload => {
-    payload = Object.assign({model},payload)
-    console.log(payload)
-    return cje_agnostic(url+'/api/chat',chat_chunker)(payload)
+  const chat = options => {
+    options = Object.assign({model},options)
+    console.log(options)
+    return cje_agnostic(url+'/api/chat',chat_chunker)(options)
   }
-  const create = cje_agnostic(url+'/api/create')
-  const tags = call_JSON_endpoint(url+'/api/tags')
-  const copy = call_JSON_endpoint(url+'/api/copy')
-  const embeddings = call_JSON_endpoint(url+'/api/embeddings')
-  const pull = payload => {
-    if (typeof payload == 'string') payload = {name:payload}
-    return cje_agnostic(url+'/api/pull')(payload)
+  const embeddings = options => {
+    call_JSON_endpoint(url+'/api/embeddings')
+  }
+  const pull = options => {
+    if (typeof options == 'string') options = {name:options}
+    return cje_agnostic(url+'/api/pull')(options)
   }
   const push = cje_agnostic(url+'/api/push')
-  const delete_m = payload => {
-    if (typeof payload == 'string') payload = {name:payload}
-    return call_JSON_endpoint(url+'/api/delete', 'DELETE')(payload)
+  const delete_ = options => {
+    if (typeof options == 'string') options = {name:options}
+    return call_JSON_endpoint(url+'/api/delete', 'DELETE')(options)
   }
-  const show = payload => call_JSON_endpoint(url+'/api/show')(Object.assign({model},payload))
+  const show = options => {
+    if (typeof options == 'string') options = {name:options}
+    return call_JSON_endpoint(url+'/api/show')(Object.assign({name:model},options))
+  }
+
+  const create = cje_agnostic(url+'/api/create')
+  const copy = call_JSON_endpoint(url+'/api/copy')
   
   return {
+    //these two endpoints don't take any params and return {models:[...]}
+    //like ps in linux, lists models in ram 
+    ps, 
+    //confusingly named, but like ls, lists available models
+    tags, 
+
+    //generate is overloaded so that you can just pass it a string that will
+    //get interpreted as a prompt using the default model if it's not passed
+    //and object, and if it's passed an object without a model name it will inject
+    //the default
+    generate, 
+    //also gets the default model injected into the params if none is included
+    chat,
+
+    //show will use the default model if none is passed, and is also overloaded
+    //and can just take a modelname as a string rather than consuming an object
+    show, 
+
+    //pull and delete also have the string overload but no default
+    pull,
+
+    //delete is a reserved word so it has to be remapped from delete_
+    delete:delete_,
+
+    //gets the embedding for a string, overloaded (can take string or object)
+    //and gets default model if none is passed
     embeddings,
-    generate, chat,
-    ps,
-    create, //warn, untested, should work tho
-    tags, show, pull,
-    copy, delete:delete_m,
+
+    //see api docs
+    create, copy, 
+
+    //ollama.model has a getter/setter to manage the default model included with 
+    //calls to the api, which expects an explicit model with each call, but the
+    //wrapper instance can have a default to make it easier to work with`
     get model() {
       return model
     },
@@ -177,13 +231,5 @@ const Ollama = (url='http://localhost:11434',model='llama') => {
     },
   }
 }
-/*
-let ollama = Ollama('http://boxxy.lan:11434','interstellarninja/hermes-2-theta-llama-3-8b:latest')
 
-let req = ollama.chat({messages: [{role: "system", content: "You are an impish silly assistant."},{role:"user",content: "Who are you?"}]})
-req.onchunk = console.log
-let zz = await req
-
-await ollama.show()
-*/
 export default Ollama

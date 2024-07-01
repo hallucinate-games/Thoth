@@ -30,6 +30,11 @@ const gen_model_table = async () => {
   notes.innerHTML = barked.parse(model_table)
 }
 
-Object.assign(window, {fsp, gen_model_table})
+const render_doc = async () => {
+  let docs = await fetch('../generated_ollama.mjs_readme.md').then(a => a.text())
+  notes.innerHTML = barked.parse(docs)
+}
+
+Object.assign(window, {fsp, gen_model_table, render_doc})
 
 export default {}
