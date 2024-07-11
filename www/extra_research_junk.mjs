@@ -18,13 +18,22 @@ const sz_str = bytes => {
 }
 
 const gen_model_table = async () => {
-  const model_infos = await ollama.tags().then(({models}) => Promise.all(models.map(({model, size}) => ollama.show({model}).then(d => Object.assign(d,{model,size})))))
+  const model_infos = await ollama.tags().then(
+    ({models}) => Promise.all(
+      models.map(({model, size}) => ollama.show({model}).catch(_=> ({})).then(d => Object.assign(d,{model,size})))
+    ))
+  console.log(model_infos)
   const header = 'name,size,params,quant,ctx'.split(',')
   const header_md = header.join('|') + '\n' + header.map(_=>'---').join('|') + '\n'
   const model_table = header_md + model_infos.map(m => {
     const {model, model_info, details,size} = m
-    const ctx_l = Object.entries(model_info).filter(([k]) => k.match(/context_length/))
-    const {parameter_size, quantization_level} = details
+    //sometimes show breaks
+    let ctx_l = [[]]
+    if (model_info && details) {
+      ctx_l = Object.entries(model_info).filter(([k]) => k.match(/context_length/))
+      //lol js context is so dumb
+      var {parameter_size, quantization_level} = details
+    }
     return `|<a href="#" onclick="ollama.model = '${model}';console.log('model set to: ${model}');">${model}</a>|${sz_str(size)}|${parameter_size}|${quantization_level}|${ctx_l[0][1]}|`
   }).join('\n')
   notes.innerHTML = barked.parse(model_table)

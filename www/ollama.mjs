@@ -91,7 +91,12 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => options => {
         const { done, value } = await reader.read()
         if (done) {
           //lift errors into output
-          if (!chunker.output.done) Object.assign(chunker.output, chunker.output.chunks.at(-1))
+          if (!chunker.output.done) {
+            //TODO wait how was this supposed to work and what edgecase
+            //does it handle? i think this needs further investigation
+            //especially when you abort something
+            //Object.assign(chunker.output, chunker.output.chunks.at(-1))
+          }
           res(chunker.output)
           return
         }
