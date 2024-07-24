@@ -46,8 +46,11 @@ const chat_chunker = response => {
     output.chunks.push(chunk)
     response?.onchunk?.(chunk)
     if (chunk?.message) {
-      if (!output.message) output.message = chunk.message
-      output.message.content += chunk.message.content
+      if (!output.message) { 
+        output.message = JSON.parse(JSON.stringify(chunk.message))
+      } else {
+        output.message.content += chunk.message.content
+      }
       //TODO this probably fucks up when we're dealing with images being returned from a model
       response?.onmessage?.(chunk.message)
       response?.ontext?.(chunk.message.content)
@@ -79,7 +82,7 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => options => {
     signal: controller.signal,
   }
 
-  let req = new Promise(res => {
+  let req = new Promise((res,rej) => {
     fetch(url, req_opts).then(async fetch_res => {
       const chunker = Chunker(req)
       const chunks = []
@@ -119,7 +122,7 @@ const call_JSON_endpoint_stream = (url,Chunker=basic_chunker) => options => {
           decoded_chunk = ''
         }
         //console.log(decoded_chunk)
-      }})
+      }}).catch(rej)
   })
   req.abort = () => controller.abort()
   return req
