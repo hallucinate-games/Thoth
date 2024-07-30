@@ -13,6 +13,8 @@ a {
 h1,h2,h3,h4,h5,h6 {
   font-family: "Aleo";
   margin-left: 0;
+  margin-top: 0.2em;
+  margin-bottom: 0.5em;
 }
 code {
   font-family: "Martian Mono";
@@ -25,6 +27,11 @@ code {
 hr {
   margin-left: 0;
   border-style: solid;
+}
+.citations {
+  padding: 1em;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
 }
 #notes {
   width: 100%;

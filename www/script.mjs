@@ -1,6 +1,11 @@
 import Ollama from "./ollama.mjs"
 import Aineko from "./aineko.mjs"
 import junk from './extra_research_junk.mjs' 
+const { webFrame, shell } = require('electron')
+
+// Replace 'path/to/your/file.txt' with the actual path to your file
+//const filePath = 'path/to/your/file.txt'; 
+//shell.openPath(filePath);
 
 const idf = a => a
 const nulf = a => null 
@@ -70,9 +75,31 @@ ${match_string}
       }) 
     }
     const done = await generating.catch(nulf)
+    const stats = calc_stats(done)
+    console.log(`generated ${stats.tokens} tkns in ${stats.eval_sec.toFixed(1)}s (${stats.tps.toFixed(1)}) tps`)
     message.message = done.message
     if (retrieve) {
-      let citations = await aineko.inject_citations({rag_response_text:ct,text_references:matches})
+      const citations = await aineko.inject_citations({rag_response_text:ct,text_references:matches})
+      const cited_matches = [...new Set(citations.cited_sentences.map(a => a.text_reference_idx))]
+      const cited_files = [...new Set(cited_matches.map(i => matches[i].file_path.replaceAll('\\','/')))]
+      const citation_div = document.createElement('div')
+      citation_div.classList.add('citations')
+      citation_div.innerHTML = '<h4>Citations</h4>'
+      const citation_links = cited_files.map((path,i) => {
+        const filename = path.split('/').at(-1)
+        const div = document.createElement('a')
+        div.innerText = `[${i}] ${filename}`
+        div.href = '#'
+        div.onclick = () => shell.openPath(path)
+        return div
+      })
+      citation_links.forEach(div => {
+        citation_div.appendChild(div)
+        citation_div.appendChild(document.createElement('br'))
+      })
+      message.appendChild(citation_div)
+      //let hell = shell
+      //debugger
       console.log(citations)
     }
     generating = false
@@ -124,6 +151,7 @@ let Message = construct_opts => {
         div.innerHTML = ihtml
         renderer.dirty = true
         //const matches = [{text:"mebbo is the cutest"}]
+        //TODO this is probably not the right place for this to happen
         const matches = await aineko.query(message.content).then(a => a.query_results).catch(_=>[])
         console.log('matches:')
         console.log(matches)
@@ -136,7 +164,7 @@ let Message = construct_opts => {
       const processed_text = text
         .split('\n').map(a => a.replace(/\s+$/, '')).join('\n')
         .replaceAll('\n','<br>')
-        .replaceAll(' ','&nbsp;')
+      //.replaceAll(' ','&nbsp;')
       document.execCommand("insertHTML", false, processed_text
       );
     }
@@ -263,7 +291,7 @@ const calc_stats = res => {
   const {eval_count, eval_duration} = res
   const eval_sec = eval_duration / 10**9
   const tps = eval_count/eval_sec
-  return {tps, eval_sec}
+  return {tps, eval_sec, tokens:eval_count}
 } 
 
 window.ap = {}
@@ -368,8 +396,6 @@ document.addEventListener("dragover", function(event) {
   event.preventDefault();
 })
 document.addEventListener("drop", function(event) {
-  console.log("drop")
-  console.log(event.dataTransfer)
   event.preventDefault()
   event.stopPropagation()
 
@@ -397,7 +423,7 @@ document.addEventListener("drop", function(event) {
         const imageDataUrl = event.target.result;
         const img = document.createElement('img')
         img.src = imageDataUrl
-        //document.querySelector('#notes').innerHTML += `<img src="${imageDataUrl}" />`;
+//document.querySelector('#notes').innerHTML += `<img src="${imageDataUrl}" />`;
         document.querySelector('#notes').appendChild(img)
         const {width,height} = fit_to_bounds(
           {width:img.naturalWidth,height:img.naturalHeight}, 
@@ -451,4 +477,4 @@ document.addEventListener("paste", function(event) {
 })
 
 
-Object.assign(window, {r_md, Ollama, ollama, aineko, renderer, retrival_debug_toggle})
+Object.assign(window, {webFrame, shell, r_md, Ollama, ollama, aineko, renderer, retrival_debug_toggle})
