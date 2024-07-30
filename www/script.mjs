@@ -364,11 +364,30 @@ const blob_to_b64 = (blob) => {
 
 window.image = undefined
 
-document.addEventListener("drop", function(event) {
+document.addEventListener("dragover", function(event) {
   event.preventDefault();
-  event.stopPropagation();
+})
+document.addEventListener("drop", function(event) {
+  console.log("drop")
+  console.log(event.dataTransfer)
+  event.preventDefault()
+  event.stopPropagation()
+
+  if (
+    event?.dataTransfer?.files?.[0] &&
+    event.dataTransfer.files[0].type === "" 
+  ) {
+    let {path} = event.dataTransfer.files[0]
+    path = path.replaceAll('\\','/')
+    console.log(`adding ${path} to aineko`)
+
+    aineko.add_dir(path)
+      .then(a => console.log(`added ${path} to aineko successfully`))
+      .catch(e => console.error(`attempt to add ${path} to aineko failed with:`, e))
+  }
 
   // Check if dropped item is an image
+  /*
   const droppedItems = event.dataTransfer.items;
   for (let i = 0; i < droppedItems.length; i++) {
     const item = droppedItems[i];
@@ -392,7 +411,8 @@ document.addEventListener("drop", function(event) {
       reader.readAsDataURL(item.getAsFile());
     }
   }
-});
+  */
+})
 
 document.addEventListener("paste", function(event) {
   //TODO this breaks normal paste bro
