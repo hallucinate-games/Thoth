@@ -3,11 +3,25 @@
   <head>
     <title>SHODAN</title>
     <link rel="stylesheet" href="font.css">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="lib/gruvbox-dark-pale.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div id="wrapper">
+      <div id="header">
+        <div class="logo">Logo</div>
+        <h1 class="title">Page Title</h1>
+        <nav class="nav-links">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+        </nav>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
       <div id="app">
         <div id="conversation"></div>
         <!--div id="notes" contenteditable="true" spellcheck="false"></div-->
@@ -15,7 +29,7 @@
         <script src="lib/marked.min.js"></script>
         <script src="lib/marked-highlight.umd.js"></script>
         <script type="module" src="script.mjs"></script>
-      </div>
+    </div>
     </div>
   </body>
 </html>

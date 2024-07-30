@@ -24,7 +24,11 @@ const marked_renderer = new marked.Marked(
       const language = hljs.getLanguage(lang) ? lang : 'plaintext'
       return hljs.highlight(code, { language }).value
     }
-  })
+  }),
+  {
+    breaks: true,
+    gmf: true,
+  }
 )
 
 const r_md = markdown => marked_renderer.parse(markdown)
@@ -58,10 +62,15 @@ ${match_string}
     }
     generating.ontext = t => {
       ct += t
-      let ihtml = r_md(ct)
+      let ihtml = r_md(ct)//.replaceAll('\n','  \n'))
       message.innerHTML = ihtml
+      message.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      }) 
     }
-    await generating.catch(nulf)
+    const done = await generating.catch(nulf)
+    message.message = done.message
     if (retrieve) {
       let citations = await aineko.inject_citations({rag_response_text:ct,text_references:matches})
       console.log(citations)
@@ -106,6 +115,11 @@ let Message = construct_opts => {
         div.contentEditable = false
 
         message.content = div.innerText 
+        //TODO this maybe isn't good or causes edgecases
+        //but also trailing whitespace causes edgecases so i just kill it
+          .split('\n').map(a => a.replace(/\s+$/, '')).join('\n')
+        console.log('completion query')
+        console.log(message.content)
         let ihtml = r_md(message.content)
         div.innerHTML = ihtml
         renderer.dirty = true
@@ -115,6 +129,16 @@ let Message = construct_opts => {
         console.log(matches)
         Assistant_Completion(matches)
       }
+    }
+    div.onpaste = event => {
+      event.preventDefault();
+      const text = event.clipboardData.getData('text/plain');
+      const processed_text = text
+        .split('\n').map(a => a.replace(/\s+$/, '')).join('\n')
+        .replaceAll('\n','<br>')
+        .replaceAll(' ','&nbsp;')
+      document.execCommand("insertHTML", false, processed_text
+      );
     }
   }
   div.innerHTML = r_md(message.content) || '<p><br></p>'
@@ -183,6 +207,7 @@ const Renderer = (inital_state, root) => {
     ) {
       const eum = empty_user_msg()
       root.appendChild(eum)
+      eum.scrollIntoView({ behavior: 'smooth' })
       eum.focus()
     }
 
@@ -406,4 +431,4 @@ document.addEventListener("paste", function(event) {
 })
 
 
-Object.assign(window, {Ollama, ollama, aineko, renderer, retrival_debug_toggle})
+Object.assign(window, {r_md, Ollama, ollama, aineko, renderer, retrival_debug_toggle})

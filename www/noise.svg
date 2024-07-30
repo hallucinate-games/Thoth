@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" viewBox="0 0 700 700" width="700" height="700" opacity="0.16">
+  <defs>
+    <filter id="nnnoise-filter" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="linearRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.203" numOctaves="2" seed="15" stitchTiles="stitch" x="0%" y="0%" width="100%" height="100%" result="turbulence"></feTurbulence>
+      <feSpecularLighting surfaceScale="18" specularConstant="1.1" specularExponent="8" lighting-color="#fff" x="0%" y="0%" width="100%" height="100%" in="turbulence" result="specularLighting">
+        <feDistantLight azimuth="3" elevation="97"></feDistantLight>
+      </feSpecularLighting>
+      <feComponentTransfer result="holes">
+        <feFuncR type="linear" slope="0" intercept="0"/>
+        <feFuncG type="linear" slope="0" intercept="0"/>
+        <feFuncB type="linear" slope="0" intercept="0"/>
+        <feFuncA type="table" tableValues="1 0"/>
+      </feComponentTransfer>
+      <feTurbulence type="turbulence" baseFrequency="0.703" numOctaves="2" 
+        seed="16" stitchTiles="stitch" x="0%" y="0%" 
+        width="100%" height="100%" result="turbulence2"></feTurbulence>
+      <feSpecularLighting surfaceScale="10" specularConstant="3.1" 
+        specularExponent="9" lighting-color="rgb(255,255,200)" x="0%" y="0%" width="100%" height="100%" 
+        in="turbulence2" result="sparkles">
+        <feDistantLight azimuth="3" elevation="97"></feDistantLight>
+      </feSpecularLighting>
+      <feComposite in="holes" in2="sparkles" operator="over"/>
+    </filter>
+  </defs>
+  <rect width="700" height="700" filter="url(#nnnoise-filter)"></rect>
+</svg>

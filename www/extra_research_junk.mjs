@@ -36,12 +36,12 @@ const gen_model_table = async () => {
     }
     return `|<a href="#" onclick="ollama.model = '${model}';console.log('model set to: ${model}');">${model}</a>|${sz_str(size)}|${parameter_size}|${quantization_level}|${ctx_l[0][1]}|`
   }).join('\n')
-  notes.innerHTML = barked.parse(model_table)
+  conversation.innerHTML = r_md(model_table)
 }
 
 const render_doc = async () => {
   let docs = await fetch('../generated_ollama.mjs_readme.md').then(a => a.text())
-  notes.innerHTML = barked.parse(docs)
+  conversation.innerHTML = r_md(docs)
 }
 
 Object.assign(window, {fsp, gen_model_table, render_doc})
