@@ -152,7 +152,8 @@ let Message = construct_opts => {
         renderer.dirty = true
         //const matches = [{text:"mebbo is the cutest"}]
         //TODO this is probably not the right place for this to happen
-        const matches = await aineko.query(message.content).then(a => a.query_results).catch(_=>[])
+        const matches = (await aineko.query(message.content).then(a => a.query_results).catch(_=>[]))
+          .filter(a => a.distance < 1.1)
         console.log('matches:')
         console.log(matches)
         Assistant_Completion(matches)
