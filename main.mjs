@@ -6,7 +6,7 @@ let main_window
 let close_toggle = {}
 
 process.stdout.write(
-  String.fromCharCode(27) + "]0;" + "SHODAN NODE" + String.fromCharCode(7)
+  String.fromCharCode(27) + "]0;" + "Thoth Backend" + String.fromCharCode(7)
 )
 
 const create_window = () => {
