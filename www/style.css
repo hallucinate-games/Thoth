@@ -73,6 +73,7 @@ hr {
   padding: 10px;
 }
 .message {
+  white-space: pre-wrap;
   scroll-margin-bottom: 10px;
   border-left: var(--message-border);
   border-right: var(--message-border);

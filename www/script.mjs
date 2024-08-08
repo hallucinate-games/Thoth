@@ -165,9 +165,7 @@ let Message = construct_opts => {
       const processed_text = text
         .split('\n').map(a => a.replace(/\s+$/, '')).join('\n')
         .replaceAll('\n','<br>')
-      //.replaceAll(' ','&nbsp;')
-      document.execCommand("insertHTML", false, processed_text
-      );
+      document.execCommand("insertHTML", false, processed_text);
     }
   }
   div.innerHTML = r_md(message.content) || '<p><br></p>'
@@ -441,6 +439,7 @@ document.addEventListener("drop", function(event) {
   */
 })
 
+/*
 document.addEventListener("paste", function(event) {
   //TODO this breaks normal paste bro
 
@@ -476,6 +475,7 @@ document.addEventListener("paste", function(event) {
     }
   }
 })
+*/
 
 
 Object.assign(window, {webFrame, shell, r_md, Ollama, ollama, aineko, renderer, retrival_debug_toggle})
