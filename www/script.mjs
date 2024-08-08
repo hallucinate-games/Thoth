@@ -164,7 +164,6 @@ let Message = construct_opts => {
       const text = event.clipboardData.getData('text/plain');
       const processed_text = text
         .split('\n').map(a => a.replace(/\s+$/, '')).join('\n')
-        .replaceAll('\n','<br>')
       document.execCommand("insertHTML", false, processed_text);
     }
   }
