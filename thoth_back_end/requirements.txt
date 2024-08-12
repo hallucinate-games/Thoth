@@ -1,0 +1,4 @@
+chromadb==0.5.3
+Flask==3.0.3
+Flask-JSON==0.4.0
+nltk==3.8.1
