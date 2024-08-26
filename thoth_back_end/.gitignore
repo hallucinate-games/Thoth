@@ -2,6 +2,8 @@
 junk
 ### BEGIN Python ignores ###
 
+# We copy nltk tokenizers into here and they can safely not be checked in
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

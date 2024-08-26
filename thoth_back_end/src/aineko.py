@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from itertools import chain
 import os
+import shutil
 import time
 from typing import Generator, List, Literal, Optional, Set
 
@@ -10,7 +11,7 @@ import chromadb
 from chromadb.api.types import D, EmbeddingFunction, Embeddings
 from chromadb.utils import embedding_functions
 import math
-from nltk import download
+import nltk
 from nltk.tokenize import sent_tokenize
 
 from util import AbstractDataClass, get_file_download_path
@@ -85,21 +86,28 @@ def _sentence_chunk_file(file_path: str) -> Generator[str, None, None]:
     return _sentence_chunk_text(raw_text=raw_text)
         
 
-def _sentence_chunk_text(raw_text: str) -> Generator[str, None, None]:
-    """ Breaks a file into approximately sentence sized chunks. """
+def load_punkt_tokenizer() -> str:
     global _punkt_downloaded
+    dst_punkt_path = os.path.join('data', 'punkt')
     if not _punkt_downloaded:
         # Used by `_sentence_chunk_file` for sentence tokenization
         try:
-            download('punkt')
-            _punkt_downloaded = True
+            nltk.download('punkt')
+            src_punkt_path = nltk.data.find('tokenizers/punkt')
+            if os.path.exists(dst_punkt_path):
+                shutil.rmtree(dst_punkt_path)
+            os.makedirs(dst_punkt_path)
+            shutil.copytree(src_punkt_path, dst_punkt_path, dirs_exist_ok=True)
         except Exception as exc:
-            print(
-                "While you do not need an internet connection to run aineko, "
-                "you do need to be connected to the internet the first time you run "
-                "it to download the sentence tokenization system.")
-            raise exc
+            # Try using the /data cache (we might be in the distributed executable)
+            nltk.data.load(f'file:{dst_punkt_path}')
+        _punkt_downloaded = True
+        return dst_punkt_path
 
+
+def _sentence_chunk_text(raw_text: str) -> Generator[str, None, None]:
+    """ Breaks a file into approximately sentence sized chunks. """
+    load_punkt_tokenizer()
     # Tokenize the text into sentences and words
     sentences = sent_tokenize(raw_text)
     
