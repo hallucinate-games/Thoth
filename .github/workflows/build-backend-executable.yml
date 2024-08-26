@@ -21,6 +21,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: List directory contents
+        if: runner.os == 'macOS'
+        run: ls -R
+
       # Set up Python 3.12 environment on all platforms
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
