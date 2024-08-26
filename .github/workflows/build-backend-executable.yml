@@ -48,6 +48,7 @@ jobs:
 
       # Install dependencies using the virtual environment's pip
       - name: Install Python dependencies
+        if: runner.os != 'Windows'
         run: |
           thoth_back_end/.venv/bin/pip install -r thoth_back_end/requirements.txt
         shell: bash
