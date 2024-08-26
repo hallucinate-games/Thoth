@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from 'child_process'
+import { execSync, spawn, spawnSync } from 'child_process'
 import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'path'
 import fs from 'fs'
@@ -12,6 +12,15 @@ process.stdout.write(
   String.fromCharCode(27) + "]0;" + "Thoth Backend" + String.fromCharCode(7)
 )
 
+const isPyOnPath = () => {
+  try {
+    execSync('py --version', {stdio: 'ignore'})
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 const get_or_install_python_executable = () => {
   const app_path = app.getAppPath()
   const python_executable = process.platform === 'win32' ?
@@ -24,7 +33,11 @@ const get_or_install_python_executable = () => {
     console.error(`Backend python not detected at ${python_executable}`)
     console.log('Installing backend python virtual environment...')
     const venv_path = path.resolve(app_path, '../thoth_back_end/.venv')
-    var {stdout, stderr, status} = spawnSync('python', ['-m', 'venv', venv_path])
+    // TODO: enforce python 3.12 on posix systems / windows systems without `py`
+    const pyIsOnPath = isPyOnPath()
+    const py312 = (process.platform === 'win32' && pyIsOnPath)?  'py': 'python'
+    const args = (process.platform === 'win32' && pyIsOnPath) ? ['-3.12', '-m', 'venv', venv_path] : ['-m', 'venv', venv_path]
+    var {stdout, stderr, status} = spawnSync(py312, args)
     if (status !== 0) {
       console.error(`Failed to install python virtual environment with error ${status}`)
       console.error(`Failed install stdout: ${stdout}`)
