@@ -1,0 +1,76 @@
+name: Build and Export Executable
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Python 3.12 environment on all platforms
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Install C++ Compiler
+      - name: Install C++ Compiler on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get install g++ -y
+
+      - name: Install C++ Compiler on macOS
+        if: runner.os == 'macOS'
+        run: brew install gcc
+
+      - name: Install C++ Compiler on Windows
+        if: runner.os == 'Windows'
+        run: |
+          choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --includeRecommended --includeOptional --quiet --norestart"
+
+      # Create Python virtual environment
+      - name: Set up Python Virtual Environment
+        run: |
+          python -m venv thoth_back_end/.venv
+
+      # Install dependencies using the virtual environment's pip
+      - name: Install Python dependencies
+        run: |
+          thoth_back_end/.venv/bin/pip install -r thoth_back_end/requirements.txt
+        shell: bash
+
+      - name: Install Python dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          thoth_back_end\.venv\Scripts\pip install -r thoth_back_end\requirements.txt
+
+      # Run the build script
+      - name: Build Executable
+        run: |
+          thoth_back_end/.venv/bin/python thoth_back_end/build_executable.py
+        shell: bash
+
+      - name: Build Executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          thoth_back_end\.venv\Scripts\python thoth_back_end\build_executable.py
+
+      # Archive the build artifacts
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-${{ matrix.os }}
+          path: thoth_back_end/dist
