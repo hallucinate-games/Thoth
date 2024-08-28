@@ -1,7 +1,24 @@
 import { execSync, spawn, spawnSync } from 'child_process'
 import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'path'
+//TODO fix the python stuff to use the promise lib
 import fs from 'fs'
+import summon_ollama from './ollamanager.mjs'
+
+let ollama_config = await fs.promises.readFile('./ollama.json')
+  .then(a => JSON.parse(a))
+  .catch(_ => {})
+
+if (!ollama_config) {
+  console.log('configuration (ollama.json) not found, using sane defaults')
+  ollama_config = {}
+
+} else {
+  console.log('found valid ollama.json\n')
+  console.log({ollama_config},'\n')
+}
+
+const ollama_process = await summon_ollama(ollama_config)
 
 let main_window
 let python_process
