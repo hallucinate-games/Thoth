@@ -79,15 +79,37 @@ const get_or_install_python_executable = () => {
   return python_executable
 }
 
-const start_python_backend = () => {
+const find_and_start_dist_build = () => {
   const app_path = app.getAppPath()
-  const python_executable = get_or_install_python_executable()
-  const python_script = path.resolve(app_path, '../thoth_back_end/src/main.py')
-  const python_script_args = ['--server']
+  const dist_build = path.resolve(app_path, '../thoth_back_end/dist/main/main.exe')
+  console.log(`Checking for dist build at ${dist_build}`)
+  if (fs.existsSync(dist_build)) {
+    console.log("Dist build exists! Starting...")
+    python_process = spawn(dist_build, ['--server'])
+    return true
+  }
+  console.log("Unable to locate dist build.")
+  return false
+}
 
-  console.log(`Python executable: ${python_executable}`);
-  console.log(`Python script: ${python_script}`);
-  python_process = spawn(python_executable, [python_script, ...python_script_args]) 
+const find_and_start_backend_process = () => {
+  const app_path = app.getAppPath()
+  // First try to use the dist build if it exists.
+  if (!find_and_start_dist_build()) {
+    console.log("Using dev build instead...")
+    // Otherwise use the dev build
+    const python_executable = get_or_install_python_executable()
+    const python_script = path.resolve(app_path, '../thoth_back_end/src/main.py')
+    const python_script_args = ['--server']
+
+    console.log(`Python executable: ${python_executable}`);
+    console.log(`Python script: ${python_script}`);
+    python_process = spawn(python_executable, [python_script, ...python_script_args]) 
+  }
+}
+
+const start_python_backend = () => {
+  find_and_start_backend_process()
 
   python_process.stdout.on('data', (data) => {
     console.log(`[Backend stdout]: ${data}`)
