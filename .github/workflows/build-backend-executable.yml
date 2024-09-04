@@ -95,7 +95,7 @@ jobs:
 
       - name: Build front-end executable
         working-directory: thoth_front_end
-        run: npm run build
+        run: npm run make
 
       # Archive the build artifacts
       - name: Archive Artifacts
