@@ -15,6 +15,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+    # Allows each OS to run separately without crashing each other
+    continue-on-error: true
 
     steps:
       # Checkout the repository
@@ -93,9 +95,20 @@ jobs:
         working-directory: thoth_front_end
         run: npm i
 
-      - name: Build front-end executable
+      - name: Build front-end executable (Linux)
+        if: runner.os == 'Linux'
         working-directory: thoth_front_end
-        run: npm run make
+        run: npm run make-linux
+
+      - name: Build front-end executable (macOS)
+        if: runner.os == 'macOS'
+        working-directory: thoth_front_end
+        run: npm run make-macos
+        
+      - name: Build front-end executable (Windows)
+        if: runner.os == 'Windows'
+        working-directory: thoth_front_end
+        run: npm run make-windows
 
       # Archive the build artifacts
       - name: Archive Artifacts
