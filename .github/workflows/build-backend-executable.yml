@@ -32,6 +32,7 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: thoth_front_end/package-lock.json
 
       # Install C++ Compiler
       - name: Install C++ Compiler on Linux
