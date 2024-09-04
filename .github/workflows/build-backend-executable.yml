@@ -89,7 +89,12 @@ jobs:
       - name: Strip down backend build (Windows) 
         if: runner.os == 'Windows'
         working-directory: thoth_back_end
-        run: for /d %i in (*) do if not "%i"=="dist" rd /s /q "%i"
+        run: |
+          Get-ChildItem -Directory | ForEach-Object {
+            if ($_.Name -ne "dist") {
+              Remove-Item $_.FullName -Recurse -Force
+            }
+          }
 
       - name: Install npm dependencies
         working-directory: thoth_front_end
