@@ -26,6 +26,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+        
+      # Set up Node 18
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
 
       # Install C++ Compiler
       - name: Install C++ Compiler on Linux
@@ -47,7 +53,7 @@ jobs:
           python -m venv thoth_back_end/.venv
 
       # Install dependencies using the virtual environment's pip
-      - name: Install Python dependencies
+      - name: Install Python dependencies (Posix)
         if: runner.os != 'Windows'
         run: |
           thoth_back_end/.venv/bin/pip install -r thoth_back_end/requirements.txt
@@ -59,7 +65,7 @@ jobs:
           thoth_back_end\.venv\Scripts\pip install -r thoth_back_end\requirements.txt
 
       # Run the build script
-      - name: Build Executable
+      - name: Build Executable (Posix)
         if: runner.os != 'Windows'
         working-directory: thoth_back_end
         run: |
@@ -72,9 +78,27 @@ jobs:
         run: |
           .venv\Scripts\python build_executable.py
 
+      - name: Strip down backend build (Posix)
+        if: runner.os != 'Windows'
+        working-directory: thoth_back_end
+        run: for dir in */; do [ "$dir" != "dist/" ] && rm -rf "$dir"; done
+
+      - name: Strip down backend build (Windows) 
+        if: runner.os == 'Windows'
+        working-directory: thoth_back_end
+        run: for /d %i in (*) do if not "%i"=="dist" rd /s /q "%i"
+
+      - name: Install npm dependencies
+        working-directory: thoth_front_end
+        run: npm i
+
+      - name: Build front-end executable
+        working-directory: thoth_front_end
+        run: npm run build
+
       # Archive the build artifacts
       - name: Archive Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist-${{ matrix.os }}
-          path: thoth_back_end/dist
+          path: thoth_front_end/dist

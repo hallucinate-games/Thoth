@@ -25,5 +25,19 @@
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
     "http-server": "^14.1.1"
+  },
+  "build": {
+    "extraResources": [
+      {
+        "from": "../thoth_back_end/",
+        "to": "thoth_back_end",
+        "filter": [
+          "dist/**",
+          "src/**",
+          "requirements.txt",
+          ".venv/**"
+        ]
+      }
+    ]
   }
 }
