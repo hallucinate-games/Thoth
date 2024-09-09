@@ -3,10 +3,10 @@ name: Build and Export Executable
 on:
   push:
     branches:
-      - main
+      - '*'
   pull_request:
     branches:
-      - main
+      - '*' 
 
 jobs:
   build:
@@ -15,6 +15,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+    # Allows each OS to run separately without crashing each other
+    continue-on-error: true
 
     steps:
       # Checkout the repository
@@ -26,6 +28,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+        
+      # Set up Node 18
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: thoth_front_end/package-lock.json
 
       # Install C++ Compiler
       - name: Install C++ Compiler on Linux
@@ -47,7 +56,7 @@ jobs:
           python -m venv thoth_back_end/.venv
 
       # Install dependencies using the virtual environment's pip
-      - name: Install Python dependencies
+      - name: Install Python dependencies (Posix)
         if: runner.os != 'Windows'
         run: |
           thoth_back_end/.venv/bin/pip install -r thoth_back_end/requirements.txt
@@ -59,7 +68,7 @@ jobs:
           thoth_back_end\.venv\Scripts\pip install -r thoth_back_end\requirements.txt
 
       # Run the build script
-      - name: Build Executable
+      - name: Build Executable (Posix)
         if: runner.os != 'Windows'
         working-directory: thoth_back_end
         run: |
@@ -72,9 +81,47 @@ jobs:
         run: |
           .venv\Scripts\python build_executable.py
 
+      - name: Strip down backend build (Posix)
+        if: runner.os != 'Windows'
+        working-directory: thoth_back_end
+        run: for dir in */; do [ "$dir" != "dist/" ] && rm -rf "$dir"; done
+
+      - name: Strip down backend build (Windows) 
+        if: runner.os == 'Windows'
+        working-directory: thoth_back_end
+        run: |
+          Get-ChildItem -Directory | ForEach-Object {
+            if ($_.Name -ne "dist") {
+              Remove-Item $_.FullName -Recurse -Force
+            }
+          }
+
+      - name: Install npm dependencies
+        working-directory: thoth_front_end
+        run: npm i
+
+      - name: Copy default ollama config
+        working-directory: thoth_front_end
+        run: cp ollama.example.json ollama.json
+        
+      - name: Build front-end executable (Linux)
+        if: runner.os == 'Linux'
+        working-directory: thoth_front_end
+        run: npm run make-linux
+
+      - name: Build front-end executable (macOS)
+        if: runner.os == 'macOS'
+        working-directory: thoth_front_end
+        run: npm run make-macos
+        
+      - name: Build front-end executable (Windows)
+        if: runner.os == 'Windows'
+        working-directory: thoth_front_end
+        run: npm run make-windows
+
       # Archive the build artifacts
       - name: Archive Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist-${{ matrix.os }}
-          path: thoth_back_end/dist
+          path: thoth_front_end/dist

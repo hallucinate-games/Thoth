@@ -7,7 +7,9 @@
     "rundev": "electron --inspect .",
     "mkdocs": "node make_ollama_docs.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "make": "electron-builder -w=portable"
+    "make-windows": "electron-builder --windows=nsis",
+    "make-macos": "electron-builder --mac=dmg",
+    "make-linux": "electron-builder --linux=AppImage"
   },
   "keywords": [],
   "author": "",
@@ -25,5 +27,22 @@
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
     "http-server": "^14.1.1"
+  },
+  "optionalDependencies": {
+    "dmg-license": "^1.0.11"
+  },
+  "build": {
+    "extraResources": [
+      {
+        "from": "../thoth_back_end/",
+        "to": "thoth_back_end",
+        "filter": [
+          "dist/**",
+          "src/**",
+          "requirements.txt",
+          ".venv/**"
+        ]
+      }
+    ]
   }
 }
