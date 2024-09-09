@@ -32,6 +32,7 @@
     "dmg-license": "^1.0.11"
   },
   "build": {
+    "asarUnpack": ["ollama.json"],
     "extraResources": [
       {
         "from": "../thoth_back_end/",
