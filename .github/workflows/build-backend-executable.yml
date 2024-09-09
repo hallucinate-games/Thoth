@@ -100,6 +100,10 @@ jobs:
         working-directory: thoth_front_end
         run: npm i
 
+      - name: Copy default ollama config
+        working-directory: thoth_front_end
+        run: cp ollama.example.json ollama.json
+        
       - name: Build front-end executable (Linux)
         if: runner.os == 'Linux'
         working-directory: thoth_front_end
