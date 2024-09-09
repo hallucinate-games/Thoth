@@ -7,7 +7,7 @@
     "rundev": "electron --inspect .",
     "mkdocs": "node make_ollama_docs.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "make-windows": "electron-builder --windows=portable",
+    "make-windows": "electron-builder --windows=nsis",
     "make-macos": "electron-builder --mac=dmg",
     "make-linux": "electron-builder --linux=AppImage"
   },
